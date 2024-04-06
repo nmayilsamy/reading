@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed Reading</title>
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+        }
+        #speedReaderPage {
+            display: none;
+        }
+        #inputText {
+            width: 80%;
+            height: 400px;
+            font-size: 16px;
+            justify-content: center; /* Horizontally align center */
+            align-items: center; /* Vertically align center */
+        }
+        #displayBox {
+            width: 1000px;
+            height: 400px;
+            padding-top: 150px;
+            margin: 0 auto;
+            font-size: 80px;
+            text-align: center;
+            border: 1px solid black;
+            overflow: hidden;
+            word-wrap: break-word;
+			background-color: rgb(237, 238, 238); 
+			color: rgb(0, 0, 0); 
+			text-align: center; 
+        }
+
+        #speedReaderPage {
+            display: none;
+            text-align: center;
+            justify-content: center; /* Horizontally align center */
+            align-items: center; /* Vertically align center */
+            text-align: center; /* Center text inside the display box */
+        }
+
+        #controlButtons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center; /* Align buttons to center horizontally */
+        }
+
+        #controlButtons button {
+            margin: 10px;
+            padding: 5px 10px;
+            font-size: 16px;
+        }
+
+
+    </style>
+</head>
+<body>
+<div id="inputPage">
+    <p><h1>Speed Reading</h1></p>
+    <textarea id="inputText" placeholder="Enter your text here..." rows="4"></textarea><br>
+    <button id="readButton">Read</button>
+</div>
+
+<div id="speedReaderPage">
+    <div id="displayBox"></div>
+    <div id="controlButtons">
+        <button id="readButton1">Read</button>
+        <button id="decreaseSpeedButton">+</button>
+        <button id="increaseSpeedButton">-</button>
+        <button id="pauseButton">Pause/Resume</button>
+        <button id="phraseButton">Phrase Read</button>
+        <button id="increaseFontSizeButton">+ Font</button>
+        <button id="decreaseFontSizeButton">- Font</button>
+        <button id="returnButton">Add Text</button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let words = [];
+        let wordIndex = 0;
+        let timing = 500;
+        let fontSize = 24;
+        let timer;
+        let paused = false;
+        let phraseReading = false;
+
+        const inputPage = document.getElementById('inputPage');
+        const speedReaderPage = document.getElementById('speedReaderPage');
+        const inputText = document.getElementById('inputText');
+        const readButton = document.getElementById('readButton');
+        const readButton1 = document.getElementById('readButton1');
+        const displayBox = document.getElementById('displayBox');
+        const decreaseSpeedButton = document.getElementById('decreaseSpeedButton');
+        const increaseSpeedButton = document.getElementById('increaseSpeedButton');
+        const pauseButton = document.getElementById('pauseButton');
+        const phraseButton = document.getElementById('phraseButton');
+        const increaseFontSizeButton = document.getElementById('increaseFontSizeButton');
+        const decreaseFontSizeButton = document.getElementById('decreaseFontSizeButton');
+        const returnButton = document.getElementById('returnButton');
+
+        readButton.addEventListener('click', startReading);
+        readButton1.addEventListener('click', restartReading);
+        decreaseSpeedButton.addEventListener('click', decreaseSpeed);
+        increaseSpeedButton.addEventListener('click', increaseSpeed);
+        pauseButton.addEventListener('click', pauseResume);
+        phraseButton.addEventListener('click', togglePhraseReading);
+        increaseFontSizeButton.addEventListener('click', increaseFontSize);
+        decreaseFontSizeButton.addEventListener('click', decreaseFontSize);
+        returnButton.addEventListener('click', returnToInput);
+
+        function startReading() {
+            inputPage.style.display = 'none';
+            speedReaderPage.style.display = 'block';
+            words = inputText.value.split(/\s+/).filter(word => word !== '');
+            if (words.length === 0) {
+                alert('Please enter some text.');
+                return;
+            }
+            clearInterval(timer);
+            timer = setInterval(displayNextWord, timing);
+        }
+
+        function displayNextWord() {
+            if (wordIndex < words.length) {
+                let displayText;
+                if (phraseReading && wordIndex < words.length - 1) {
+                    displayText = words[wordIndex] + " " + words[wordIndex + 1];
+                    wordIndex += 2;
+                } else {
+                    displayText = words[wordIndex];
+                    wordIndex++;
+                }
+                displayBox.innerText = displayText;
+            } else {
+                clearInterval(timer);
+            }
+        }
+
+        function increaseSpeed() {
+            timing += 50;
+            clearInterval(timer);
+            timer = setInterval(displayNextWord, timing);
+        }
+
+        function decreaseSpeed() {
+            if (timing > 10) {
+                timing -= 50;
+                clearInterval(timer);
+                timer = setInterval(displayNextWord, timing);
+            }
+        }
+
+        function pauseResume() {
+            paused = !paused;
+            if (paused) {
+                clearInterval(timer);
+            } else {
+                timer = setInterval(displayNextWord, timing);
+            }
+        }
+
+        function togglePhraseReading() {
+            phraseReading = !phraseReading;
+            phraseButton.innerText = phraseReading ? "Phrase Reading" : "Disable phrase";
+        }
+
+        function increaseFontSize() {
+            fontSize++;
+            displayBox.style.fontSize = fontSize + "px";
+        }
+
+        function decreaseFontSize() {
+            if (fontSize > 5) {
+                fontSize--;
+                displayBox.style.fontSize = fontSize + "px";
+            }
+        }
+
+        function returnToInput() {
+            inputPage.style.display = 'block';
+            speedReaderPage.style.display = 'none';
+        }
+
+        function restartReading() {
+            wordIndex = 0;
+            clearInterval(timer);
+            timer = setInterval(displayNextWord, timing);
+        }
+    });
+</script>
+</body>
+</html>
